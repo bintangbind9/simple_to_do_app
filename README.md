@@ -1,6 +1,6 @@
 # simple_to_do_app
 
-A new Flutter project.
+Simple To Do App using Firebase Auth, Cloud Firestore, and Cloud Functions.
 
 ## Getting Started
 
