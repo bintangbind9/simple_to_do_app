@@ -1,8 +1,12 @@
+import 'dart:io' show HttpStatus;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart' show GetIt;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 
+import '../../common/constants/app_endpoints.dart';
 import '../../common/exceptions/auth_exceptions.dart';
 import '../../common/exceptions/cloud_firestore/cloud_firestore_exception.dart';
 import '../../common/exceptions/cloud_firestore/user_exceptions.dart';
@@ -21,20 +25,17 @@ class FirebaseService {
       );
       final user = await getCurrentSignedInUser();
       if (user != null) {
-        final appUserService = GetIt.I<AppUserService>();
-        await appUserService.create(
-          appUser: AppUser(
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email!,
-            emailVerified: user.emailVerified,
-            isAnonymous: user.isAnonymous,
-            phoneNumber: user.phoneNumber,
-            photoURL: user.photoURL,
-          ),
+        final response = await http.post(
+          Uri.parse(AppEndpoints.onUserCreated),
+          body: {appUserUid: user.uid},
         );
 
-        return user;
+        if (response.statusCode == HttpStatus.ok) {
+          return user;
+        } else {
+          await user.delete();
+          throw GenericAuthException();
+        }
       } else {
         throw UserNotLoggedInAuthException();
       }
