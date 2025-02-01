@@ -22,7 +22,7 @@ class ToDoService {
     required ToDo toDo,
   }) async {
     try {
-      await todos.doc(docId).update(toDo.toJson(isUpdate: true));
+      await todos.doc(docId).update(toDo.toJson());
     } catch (e) {
       throw CouldNotUpdateToDoException();
     }
@@ -67,7 +67,7 @@ class ToDoService {
 
   Future<ToDo> create({required ToDo toDo}) async {
     try {
-      final document = await todos.add(toDo.toJson(isUpdate: false));
+      final document = await todos.add(toDo.toJson());
       final fetchedDoc = await document.get();
       return ToDo.fromJson(
         fetchedDoc.id,

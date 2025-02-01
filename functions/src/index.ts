@@ -7,8 +7,11 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-// import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import {onRequest} from "firebase-functions/v2/https";
+import {
+  onDocumentCreated,
+  onDocumentUpdated,
+} from "firebase-functions/v2/firestore";
 import {getApps, initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
@@ -19,6 +22,71 @@ if (!getApps().length) {
 
 const db = getFirestore();
 const auth = getAuth();
+
+// Handle document creation for all collections
+export const onAnyDocumentCreate = onDocumentCreated(
+  "{collectionId}/{docId}",
+  async (event) => {
+    try {
+      const snapshot = event.data;
+      if (!snapshot) return;
+
+      const data = snapshot.data();
+      if (!data) return;
+
+      // Skip if createdAt already exists to avoid infinite loop
+      if (data.createdAt) return;
+
+      // Add createdAt and createdBy
+      await snapshot.ref.update({
+        createdAt: new Date(),
+        createdBy: data.email || "system",
+        updatedAt: new Date(),
+        updatedBy: data.email || "system",
+      });
+
+      console.log(`Document ${snapshot.id}
+        in ${event.params.collectionId} created with timestamps`);
+    } catch (error) {
+      console.error("Error in onAnyDocumentCreate:", error);
+    }
+  });
+
+// Handle document update for all collections
+export const onAnyDocumentUpdate = onDocumentUpdated(
+  "{collectionId}/{docId}",
+  async (event) => {
+    try {
+      const after = event.data?.after;
+      const before = event.data?.before;
+      if (!after || !before) return;
+
+      const newData = after.data();
+      const oldData = before.data();
+      if (!newData || !oldData) return;
+
+      // Skip if this update was triggered by our function
+      // by checking if only updatedAt/updatedBy were changed
+      const skipFields = ["updatedAt", "updatedBy"];
+      const hasOtherChanges = Object.keys(newData).some((key) => {
+        if (skipFields.includes(key)) return false;
+        return JSON.stringify(newData[key]) !== JSON.stringify(oldData[key]);
+      });
+
+      if (!hasOtherChanges) return;
+
+      // Update only updatedAt and updatedBy
+      await after.ref.update({
+        updatedAt: new Date(),
+        updatedBy: newData.email || "system",
+      });
+
+      console.log(`Document ${after.id}
+        in ${event.params.collectionId} updated with timestamps`);
+    } catch (error) {
+      console.error("Error in onAnyDocumentUpdate:", error);
+    }
+  });
 
 export const onUserCreated = onRequest(async (request, response) => {
   try {
@@ -43,10 +111,6 @@ export const onUserCreated = onRequest(async (request, response) => {
       phoneNumber: phoneNumber ?? null,
       emailVerified: emailVerified,
       isAnonymous: false,
-      createdAt: new Date(),
-      createdBy: email || "system",
-      updatedAt: new Date(),
-      updatedBy: email || "system",
     });
 
     console.log(`User profile created for ${uid}`);

@@ -62,21 +62,13 @@ class AppUser extends CloudFirestoreEntity {
         deletedBy: json[cloudFirestoreEntityDeletedBy],
       );
 
-  Map<String, dynamic> toJson({required bool isUpdate}) {
-    final appUserMap = {
-      appUserUid: uid,
-      appUserDisplayName: displayName,
-      appUserEmail: email,
-      appUserEmailVerified: emailVerified,
-      appUserIsAnonymous: isAnonymous,
-      appUserPhoneNumber: phoneNumber,
-      appUserPhotoURL: photoURL,
-    };
-
-    if (isUpdate) {
-      return {...appUserMap, ...super.toJsonUpdate()};
-    }
-
-    return {...appUserMap, ...super.toJsonCreate()};
-  }
+  Map<String, dynamic> toJson() => {
+        appUserUid: uid,
+        appUserDisplayName: displayName,
+        appUserEmail: email,
+        appUserEmailVerified: emailVerified,
+        appUserIsAnonymous: isAnonymous,
+        appUserPhoneNumber: phoneNumber,
+        appUserPhotoURL: photoURL,
+      };
 }
