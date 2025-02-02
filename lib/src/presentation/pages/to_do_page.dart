@@ -4,12 +4,15 @@ import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart' show GetIt;
 
+import '../../common/constants/app_styles.dart';
+import '../../common/utils/extensions/double_extension.dart';
 import '../../common/utils/loading/loading_screen.dart';
 import '../../domain/entities/cloud_firestore/app_user.dart';
 import '../../domain/entities/cloud_firestore/to_do.dart';
 import '../../domain/usecases/cloud_firestore/todo/stream_get_all_to_do_use_case.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/to_do/to_do_bloc.dart';
+import '../widgets/todo_item.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key, required this.title});
@@ -64,70 +67,98 @@ class _TodoPageState extends State<TodoPage> {
         }
       },
       child: Scaffold(
+        backgroundColor: AppStyles.backgroundColor,
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          backgroundColor: AppStyles.backgroundColor,
           actions: [
             IconButton(
               onPressed: () => authBloc.add(SignOut()),
-              icon: const Icon(Icons.logout),
+              icon: Icon(Icons.logout, color: AppStyles.errorColor),
             ),
           ],
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                top: 16.0,
-                right: 16.0,
-              ),
-              child: Text(
-                'Signed as: ${currentUser.name}',
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                spacing: 16,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: 'Add new task',
-                        border: OutlineInputBorder(),
-                      ),
+        body: Padding(
+          padding: const EdgeInsets.only(
+            left: AppStyles.pagePadding,
+            right: AppStyles.pagePadding,
+            bottom: AppStyles.pagePadding,
+          ),
+          child: Column(
+            children: [
+              Container(
+                color: AppStyles.backgroundColor,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppStyles.pagePadding.sizedBoxHeight,
+                    Text(
+                      'Hi! ${currentUser.name}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: _addTodo,
-                    child: const Text('Add'),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: BlocBuilder<ToDoBloc, ToDoState>(
-                builder: (context, state) {
-                  return ListView.builder(
-                    itemCount: state.toDos.length,
-                    itemBuilder: (context, index) {
-                      final todo = state.toDos[index];
-                      return ListTile(
-                        title: Text(todo.title),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () =>
-                              toDoBloc.add(ToDoDelete(todo.docId!)),
+                    Text(
+                      'what do you want to do today?',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.normal,
+                          ),
+                    ),
+                    32.0.sizedBoxHeight,
+                    TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Add a task',
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(color: AppStyles.textGrey),
+                        prefixIcon: IconButton(
+                            onPressed: _addTodo,
+                            icon: Icon(Icons.add, color: AppStyles.textGrey)),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    },
-                  );
-                },
+                        filled: true,
+                        fillColor: AppStyles.fillGrey,
+                      ),
+                      onEditingComplete: _addTodo,
+                    ),
+                    8.0.sizedBoxHeight,
+                  ],
+                ),
               ),
-            ),
-          ],
+              Expanded(
+                child: BlocBuilder<ToDoBloc, ToDoState>(
+                  builder: (context, state) {
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      separatorBuilder: (context, index) => 8.0.sizedBoxHeight,
+                      itemCount: state.toDos.length,
+                      itemBuilder: (context, index) {
+                        final todo = state.toDos[index];
+                        return TodoItem(
+                          todo: todo,
+                          onDelete: () => toDoBloc.add(ToDoDelete(todo.docId!)),
+                          onCheckboxed: (value) {
+                            toDoBloc.add(
+                              ToDoUpdate(
+                                todo.docId!,
+                                todo.copyWith(isDone: value),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

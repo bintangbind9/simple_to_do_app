@@ -42,7 +42,7 @@ class _InitialPageState extends State<InitialPage> {
         if (state is AuthSignedOut) {
           return const LoginPage();
         } else if (state is AuthSignedIn || state is AuthNeedsVerification) {
-          return TodoPage(title: 'Todo List');
+          return TodoPage(title: 'To Do List');
         } else if (state is AuthRegistering) {
           return const RegisterPage();
         } else {

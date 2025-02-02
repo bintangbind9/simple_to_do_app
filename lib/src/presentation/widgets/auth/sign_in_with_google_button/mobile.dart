@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../bloc/auth/auth_bloc.dart';
+import '../../common_button.dart';
 import 'stub.dart';
 
 /// Renders a SIGN IN button that calls `handleSignIn` onclick.
@@ -14,15 +15,12 @@ Widget buildSignInWithGoogleButton({
   required BuildContext context,
   HandleSignInFn? onPressed,
 }) {
-  return ElevatedButton(
+  return CommonButton(
+    text: 'Sign in with Google',
     onPressed: () => context.read<AuthBloc>().add(SignInWithGoogle()),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 10,
-      children: [
-        const FaIcon(FontAwesomeIcons.google),
-        Text('Sign in with Google'),
-      ],
-    ),
+    icon: FontAwesomeIcons.google,
+    textColor: Colors.black54,
+    backgroundColor: Colors.white,
+    borderColor: Colors.black54,
   );
 }

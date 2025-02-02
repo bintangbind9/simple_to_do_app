@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
+import '../../../common/constants/app_assets.dart';
 import '../../../common/constants/app_styles.dart';
 import '../../../common/exceptions/auth_exceptions.dart';
 import '../../../common/utils/dialogs/info_dialog.dart';
@@ -10,6 +11,7 @@ import '../../../common/utils/extensions/double_extension.dart';
 import '../../../domain/usecases/auth/sign_in_with_email_and_password_use_case.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../widgets/auth/sign_in_with_google_button.dart';
+import '../../widgets/common_button.dart';
 import '../../widgets/common_text_form_field.dart';
 
 class LoginPage extends StatefulWidget {
@@ -81,6 +83,11 @@ class _LoginPageState extends State<LoginPage> {
             key: _formKey,
             child: ListView(
               children: [
+                Image.asset(
+                  AppAssets.signinPng,
+                  width: 300,
+                  height: 300,
+                ),
                 CommonTextFormField(
                   controller: emailController,
                   label: 'Email',
@@ -118,9 +125,9 @@ class _LoginPageState extends State<LoginPage> {
                   onEditingComplete: signIn,
                 ),
                 20.0.sizedBoxHeight,
-                ElevatedButton(
+                CommonButton(
+                  text: 'Sign in',
                   onPressed: signIn,
-                  child: Text('Sign in'),
                 ),
                 20.0.sizedBoxHeight,
                 Text(

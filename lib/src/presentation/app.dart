@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../common/constants/app_styles.dart';
 import 'pages/initial_page.dart';
 
 class App extends StatelessWidget {
@@ -12,8 +13,17 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: 'Simple Todo App',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppStyles.primaryColor,
+            brightness: Brightness.light,
+          ),
+          cardTheme: CardTheme(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         ),
         debugShowCheckedModeBanner: false,
         debugShowMaterialGrid: false,

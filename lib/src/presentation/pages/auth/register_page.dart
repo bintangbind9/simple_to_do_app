@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
+import '../../../common/constants/app_assets.dart';
 import '../../../common/constants/app_styles.dart';
 import '../../../common/exceptions/auth_exceptions.dart';
 import '../../../common/utils/dialogs/info_dialog.dart';
@@ -10,6 +11,7 @@ import '../../../common/utils/validator_util.dart';
 import '../../../domain/usecases/auth/create_user_with_email_and_password_use_case.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/equal_password_validation/equal_password_validation_bloc.dart';
+import '../../widgets/common_button.dart';
 import '../../widgets/common_text_form_field.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -60,6 +62,11 @@ class _RegisterPageState extends State<RegisterPage> {
             key: _formKey,
             child: ListView(
               children: [
+                Image.asset(
+                  AppAssets.registerPng,
+                  width: 300,
+                  height: 300,
+                ),
                 CommonTextFormField(
                   controller: emailController,
                   label: 'Email',
@@ -100,7 +107,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 20.0.sizedBoxHeight,
-                ElevatedButton(
+                CommonButton(
+                  text: 'Sign up',
                   onPressed: () {
                     if (!_formKey.currentState!.validate()) return;
 
@@ -110,7 +118,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           password: passwordController.text,
                         )));
                   },
-                  child: Text('Sign up'),
                 ),
                 20.0.sizedBoxHeight,
                 Row(
