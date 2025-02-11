@@ -24,7 +24,7 @@ class AppUserService {
     required AppUser appUser,
   }) async {
     try {
-      await users.doc(docId).update(appUser.toJson());
+      await users.doc(docId).update(appUser.toJson(isUpdate: true));
     } catch (e) {
       throw CouldNotUpdateUserException();
     }
@@ -112,7 +112,7 @@ class AppUserService {
 
   Future<AppUser> create({required AppUser appUser}) async {
     try {
-      final document = await users.add(appUser.toJson());
+      final document = await users.add(appUser.toJson(isUpdate: false));
       final fetchedDoc = await document.get();
       return AppUser.fromJson(
           fetchedDoc.id, fetchedDoc.data()!, fetchedDoc.reference);

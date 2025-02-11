@@ -48,12 +48,20 @@ class ToDo extends CloudFirestoreEntity {
         deletedBy: json[cloudFirestoreEntityDeletedBy],
       );
 
-  Map<String, dynamic> toJson() => {
-        todoAppUserUid: appUserUid,
-        todoTitle: title,
-        todoTimestamp: timestamp,
-        todoIsDone: isDone,
-      };
+  Map<String, dynamic> toJson({required bool isUpdate}) {
+    final todoMap = {
+      todoAppUserUid: appUserUid,
+      todoTitle: title,
+      todoTimestamp: timestamp,
+      todoIsDone: isDone,
+    };
+
+    if (isUpdate) {
+      return {...todoMap, ...super.toJsonUpdate()};
+    }
+
+    return {...todoMap, ...super.toJsonCreate()};
+  }
 
   ToDo copyWith({
     String? docId,

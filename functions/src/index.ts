@@ -8,21 +8,42 @@
  */
 
 import {onRequest} from "firebase-functions/v2/https";
+import {getApps, initializeApp} from "firebase-admin/app";
+/*
 import {
   onDocumentCreated,
   onDocumentUpdated,
 } from "firebase-functions/v2/firestore";
-import {getApps, initializeApp} from "firebase-admin/app";
-import {getFirestore} from "firebase-admin/firestore";
-import {getAuth} from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
+*/
 
 if (!getApps().length) {
   initializeApp();
 }
 
+/*
 const db = getFirestore();
 const auth = getAuth();
+*/
 
+export const greeting = onRequest(async (request, response) => {
+  try {
+    const {name} = request.body;
+    response.status(200).send({success: true, message: `Hello ${name}`});
+  } catch (error: unknown) {
+    console.error("Error greeting user:", error);
+    if (error instanceof Error) {
+      response.status(500).send({success: false, message: error.message});
+    } else {
+      response.status(500).send(
+        {success: false, message: "An unknown error occurred"}
+      );
+    }
+  }
+});
+
+/*
 // Handle document creation for all collections
 export const onAnyDocumentCreate = onDocumentCreated(
   "{collectionId}/{docId}",
@@ -126,3 +147,4 @@ export const onUserCreated = onRequest(async (request, response) => {
     }
   }
 });
+*/
