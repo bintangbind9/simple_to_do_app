@@ -12,6 +12,8 @@ abstract class AppUserRepository {
 
   Future<AppUser> getByUid({required String uid});
 
+  Stream<AppUser?> streamGetByUid({required String uid});
+
   Future<Iterable<AppUser>> getAllByEmail({required String email});
 
   Future<Iterable<AppUser>> getByUids({required List<String> uids});

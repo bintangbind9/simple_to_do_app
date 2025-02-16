@@ -1,13 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart' show GetIt;
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../common/exceptions/auth_exceptions.dart';
-import '../../common/exceptions/cloud_firestore/cloud_firestore_exception.dart';
-import '../../common/exceptions/cloud_firestore/user_exceptions.dart';
-import '../../domain/entities/cloud_firestore/app_user.dart';
-import 'cloud_firestore/app_user_service.dart';
 
 class FirebaseService {
   Future<User> createUserWithEmailAndPassword({
@@ -21,25 +16,7 @@ class FirebaseService {
       );
       final user = await getCurrentSignedInUser();
       if (user != null) {
-        try {
-          final appUserService = GetIt.I<AppUserService>();
-          await appUserService.create(
-            appUser: AppUser(
-              uid: user.uid,
-              displayName: user.displayName,
-              email: user.email!,
-              emailVerified: user.emailVerified,
-              isAnonymous: user.isAnonymous,
-              phoneNumber: user.phoneNumber,
-              photoURL: user.photoURL,
-            ),
-          );
-
-          return user;
-        } catch (e) {
-          await user.delete();
-          rethrow;
-        }
+        return user;
       } else {
         throw UserNotLoggedInAuthException();
       }
@@ -53,7 +30,7 @@ class FirebaseService {
       } else {
         throw GenericAuthException();
       }
-    } on CloudFirestoreException catch (_) {
+    } on Exception catch (_) {
       rethrow;
     } catch (e) {
       throw GenericAuthException();
@@ -77,6 +54,8 @@ class FirebaseService {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+        throw InvalidUserCredentialAuthException();
+      } else if (e.code == 'invalid-credential') {
         throw InvalidUserCredentialAuthException();
       } else {
         throw GenericAuthException();
@@ -113,29 +92,12 @@ class FirebaseService {
       final user = userCredentialResult.user;
 
       if (user != null) {
-        final appUserService = GetIt.I<AppUserService>();
-        try {
-          await appUserService.getByUid(uid: user.uid);
-        } on CloudFirestoreException catch (e) {
-          if (e is UserNotFoundException) {
-            await appUserService.create(
-              appUser: AppUser(
-                uid: user.uid,
-                displayName: user.displayName,
-                email: user.email!,
-                emailVerified: user.emailVerified,
-                isAnonymous: user.isAnonymous,
-                phoneNumber: user.phoneNumber,
-                photoURL: user.photoURL,
-              ),
-            );
-          }
-        }
-
         return user;
       } else {
-        throw UserNotFoundAuthException();
+        throw UserNotLoggedInAuthException();
       }
+    } on Exception catch (_) {
+      rethrow;
     } catch (e) {
       debugPrint('Error signInWithGoogle $e');
       throw GenericAuthException();

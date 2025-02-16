@@ -61,6 +61,16 @@ class AppUserService {
     }
   }
 
+  Stream<AppUser?> streamGetByUid({required String uid}) {
+    return users.where(appUserUid, isEqualTo: uid).snapshots().map((query) {
+      final doc = query.docs.singleOrNull;
+      if (doc != null) {
+        return AppUser.fromJson(doc.id, doc.data(), doc.reference);
+      }
+      return null;
+    });
+  }
+
   Future<Iterable<AppUser>> getAllByEmail({required String email}) async {
     try {
       email = email.trim();

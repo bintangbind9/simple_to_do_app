@@ -9,28 +9,29 @@ import '../../../domain/usecases/auth/get_current_signed_in_user_use_case.dart';
 import '../../../domain/usecases/auth/sign_in_with_email_and_password_use_case.dart';
 import '../../../domain/usecases/auth/sign_in_with_google_use_case.dart';
 import '../../../domain/usecases/auth/sign_out_use_case.dart';
-import '../../../domain/usecases/cloud_firestore/app_user/get_by_uid_app_user_use_case.dart';
+import '../../../domain/usecases/cloud_firestore/app_user/stream_get_by_uid_app_user_use_case.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthInitial(isLoading: false)) {
+    final streamGetByUidAppUserUseCase =
+        GetIt.I<StreamGetByUidAppUserUseCase>();
+
     on<CreateUserWithEmailAndPassword>((event, emit) async {
       emit(const AuthRegistering(isLoading: true));
 
       final createUserWithEmailAndPasswordUseCase =
           GetIt.I<CreateUserWithEmailAndPasswordUseCase>();
-      final getByUidAppUserUseCase = GetIt.I<GetByUidAppUserUseCase>();
 
       try {
         final user =
             await createUserWithEmailAndPasswordUseCase.call(event.params);
-        final appUser = await getByUidAppUserUseCase.call(user.uid);
 
         emit(AuthNeedsVerification(
           user: user,
-          appUser: appUser,
+          streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
           isLoading: false,
         ));
       } on Exception catch (e) {
@@ -43,22 +44,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final signInWithEmailAndPasswordUseCase =
           GetIt.I<SignInWithEmailAndPasswordUseCase>();
-      final getByUidAppUserUseCase = GetIt.I<GetByUidAppUserUseCase>();
 
       try {
         final user = await signInWithEmailAndPasswordUseCase.call(event.params);
-        final appUser = await getByUidAppUserUseCase.call(user.uid);
 
         if (user.emailVerified) {
           emit(AuthSignedIn(
             user: user,
-            appUser: appUser,
+            streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
             isLoading: false,
           ));
         } else {
           emit(AuthNeedsVerification(
             user: user,
-            appUser: appUser,
+            streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
             isLoading: false,
           ));
         }
@@ -71,22 +70,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthSignedOut(isLoading: true));
 
       final signInWithGoogleUseCase = GetIt.I<SignInWithGoogleUseCase>();
-      final getByUidAppUserUseCase = GetIt.I<GetByUidAppUserUseCase>();
 
       try {
         final user = await signInWithGoogleUseCase.call(event.idToken);
-        final appUser = await getByUidAppUserUseCase.call(user.uid);
 
         if (user.emailVerified) {
           emit(AuthSignedIn(
             user: user,
-            appUser: appUser,
+            streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
             isLoading: false,
           ));
         } else {
           emit(AuthNeedsVerification(
             user: user,
-            appUser: appUser,
+            streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
             isLoading: false,
           ));
         }
@@ -106,21 +103,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user == null) {
         emit(const AuthSignedOut(isLoading: false));
       } else {
-        final getByUidAppUserUseCase = GetIt.I<GetByUidAppUserUseCase>();
-        final appUser = await getByUidAppUserUseCase.call(user.uid);
-
         // Tidak berhasil sign out
         if (user.emailVerified) {
           emit(AuthSignedIn(
             user: user,
-            appUser: appUser,
+            streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
             isLoading: false,
             exception: exception,
           ));
         } else {
           emit(AuthNeedsVerification(
             user: user,
-            appUser: appUser,
+            streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
             isLoading: false,
             exception: exception,
           ));
@@ -137,19 +131,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (user == null) {
           emit(const AuthSignedOut(isLoading: false));
         } else {
-          final getByUidAppUserUseCase = GetIt.I<GetByUidAppUserUseCase>();
-          final appUser = await getByUidAppUserUseCase.call(user.uid);
-
           if (user.emailVerified) {
             emit(AuthSignedIn(
               user: user,
-              appUser: appUser,
+              streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
               isLoading: false,
             ));
           } else {
             emit(AuthNeedsVerification(
               user: user,
-              appUser: appUser,
+              streamAppUser: streamGetByUidAppUserUseCase.call(user.uid),
               isLoading: false,
             ));
           }

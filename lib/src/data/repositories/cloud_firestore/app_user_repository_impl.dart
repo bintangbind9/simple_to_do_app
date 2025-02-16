@@ -33,6 +33,11 @@ class AppUserRepositoryImpl implements AppUserRepository {
   }
 
   @override
+  Stream<AppUser?> streamGetByUid({required String uid}) {
+    return appUserService.streamGetByUid(uid: uid);
+  }
+
+  @override
   Future<Iterable<AppUser>> getAllByEmail({required String email}) async {
     return await appUserService.getAllByEmail(email: email);
   }

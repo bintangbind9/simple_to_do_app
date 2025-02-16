@@ -6,14 +6,14 @@ sealed class AuthState {
   final String? loadingText;
   final Exception? exception;
   final User? user;
-  final AppUser? appUser;
+  final Stream<AppUser?>? streamAppUser;
 
   const AuthState({
     required this.isLoading,
     this.loadingText,
     this.exception,
     this.user,
-    this.appUser,
+    this.streamAppUser,
   });
 }
 
@@ -32,7 +32,7 @@ final class AuthSignedOut extends AuthState {
 final class AuthSignedIn extends AuthState {
   const AuthSignedIn({
     required super.user,
-    required super.appUser,
+    required super.streamAppUser,
     required super.isLoading,
     super.loadingText,
     super.exception,
@@ -42,7 +42,7 @@ final class AuthSignedIn extends AuthState {
 final class AuthNeedsVerification extends AuthState {
   const AuthNeedsVerification({
     required super.user,
-    required super.appUser,
+    required super.streamAppUser,
     required super.isLoading,
     super.loadingText,
     super.exception,

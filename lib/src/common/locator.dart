@@ -26,6 +26,7 @@ import '../domain/usecases/cloud_firestore/app_user/get_app_user_use_case.dart';
 import '../domain/usecases/cloud_firestore/app_user/get_by_uid_app_user_use_case.dart';
 import '../domain/usecases/cloud_firestore/app_user/get_by_uids_app_user_use_case.dart';
 import '../domain/usecases/cloud_firestore/app_user/stream_get_all_app_user_use_case.dart';
+import '../domain/usecases/cloud_firestore/app_user/stream_get_by_uid_app_user_use_case.dart';
 import '../domain/usecases/cloud_firestore/app_user/stream_get_by_uids_app_user_use_case.dart';
 import '../domain/usecases/cloud_firestore/app_user/update_app_user_use_case.dart';
 import '../domain/usecases/cloud_firestore/todo/create_to_do_use_case.dart';
@@ -82,6 +83,7 @@ void _registerAppUserUseCases() {
   GetIt.I.registerLazySingleton(() => StreamGetAllAppUserUseCase());
   GetIt.I.registerLazySingleton(() => GetAppUserUseCase());
   GetIt.I.registerLazySingleton(() => GetByUidAppUserUseCase());
+  GetIt.I.registerLazySingleton(() => StreamGetByUidAppUserUseCase());
   GetIt.I.registerLazySingleton(() => GetByUidsAppUserUseCase());
   GetIt.I.registerLazySingleton(() => StreamGetByUidsAppUserUseCase());
   GetIt.I.registerLazySingleton(() => UpdateAppUserUseCase());

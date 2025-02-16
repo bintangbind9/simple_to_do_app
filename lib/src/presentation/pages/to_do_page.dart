@@ -1,4 +1,7 @@
+import 'dart:async' show StreamSubscription;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +29,8 @@ class TodoPage extends StatefulWidget {
 class _TodoPageState extends State<TodoPage> {
   final TextEditingController _controller = TextEditingController();
   final _streamGetAllToDoUseCase = GetIt.I<StreamGetAllToDoUseCase>();
+  StreamSubscription<AppUser?>? _streamSubscriptionAppUser;
+  AppUser? _currentAppUser;
 
   void _addTodo() {
     if (_controller.text.isNotEmpty) {
@@ -41,7 +46,8 @@ class _TodoPageState extends State<TodoPage> {
   AuthBloc get authBloc => context.read<AuthBloc>();
   ToDoBloc get toDoBloc => context.read<ToDoBloc>();
 
-  AppUser get currentUser => authBloc.state.appUser!;
+  User get currentUser => authBloc.state.user!;
+  Stream<AppUser?> get streamAppUser => authBloc.state.streamAppUser!;
 
   @override
   void initState() {
@@ -49,6 +55,8 @@ class _TodoPageState extends State<TodoPage> {
       _streamGetAllToDoUseCase.call(currentUser.uid).listen((todos) {
         toDoBloc.add(ToDoSet(todos.toList()));
       });
+      _streamSubscriptionAppUser = streamAppUser
+          .listen((appUser) => setState(() => _currentAppUser = appUser));
     });
     super.initState();
   }
@@ -95,7 +103,7 @@ class _TodoPageState extends State<TodoPage> {
                   children: [
                     AppStyles.pagePadding.sizedBoxHeight,
                     Text(
-                      'Hi! ${currentUser.name}',
+                      'Hi! ${_currentAppUser?.name ?? ''}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -167,6 +175,7 @@ class _TodoPageState extends State<TodoPage> {
   @override
   void dispose() {
     _controller.dispose();
+    _streamSubscriptionAppUser?.cancel();
     super.dispose();
   }
 }
