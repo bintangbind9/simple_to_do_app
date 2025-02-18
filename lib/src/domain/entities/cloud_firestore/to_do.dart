@@ -5,12 +5,14 @@ import 'cloud_firestore_entity.dart';
 const String todoAppUserUid = 'appUserUid';
 const String todoTitle = 'title';
 const String todoTimestamp = 'timestamp';
+const String todoReminderAt = 'reminderAt';
 const String todoIsDone = 'isDone';
 
 class ToDo extends CloudFirestoreEntity {
   final String appUserUid;
   final String title;
   final Timestamp timestamp;
+  final DateTime reminderAt;
   final bool isDone;
 
   ToDo({
@@ -19,6 +21,7 @@ class ToDo extends CloudFirestoreEntity {
     required this.appUserUid,
     required this.title,
     required this.timestamp,
+    required this.reminderAt,
     this.isDone = false,
     super.createdAt,
     super.createdBy,
@@ -39,6 +42,7 @@ class ToDo extends CloudFirestoreEntity {
         appUserUid: json[todoAppUserUid],
         title: json[todoTitle],
         timestamp: json[todoTimestamp],
+        reminderAt: (json[todoReminderAt] as Timestamp).toDate(),
         isDone: json[todoIsDone] ?? false,
         createdAt: json[cloudFirestoreEntityCreatedAt],
         createdBy: json[cloudFirestoreEntityCreatedBy],
@@ -53,6 +57,7 @@ class ToDo extends CloudFirestoreEntity {
       todoAppUserUid: appUserUid,
       todoTitle: title,
       todoTimestamp: timestamp,
+      todoReminderAt: reminderAt,
       todoIsDone: isDone,
     };
 
@@ -69,6 +74,7 @@ class ToDo extends CloudFirestoreEntity {
     String? appUserUid,
     String? title,
     Timestamp? timestamp,
+    DateTime? reminderAt,
     bool? isDone,
     Timestamp? createdAt,
     String? createdBy,
@@ -83,6 +89,7 @@ class ToDo extends CloudFirestoreEntity {
         appUserUid: appUserUid ?? this.appUserUid,
         title: title ?? this.title,
         timestamp: timestamp ?? this.timestamp,
+        reminderAt: reminderAt ?? this.reminderAt,
         isDone: isDone ?? this.isDone,
         createdAt: createdAt ?? this.createdAt,
         createdBy: createdBy ?? this.createdBy,

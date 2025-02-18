@@ -38,6 +38,7 @@ class _TodoPageState extends State<TodoPage> {
         title: _controller.text,
         appUserUid: currentUser.uid,
         timestamp: Timestamp.now(),
+        reminderAt: DateTime.now().add(const Duration(days: 1)),
       )));
       _controller.clear();
     }

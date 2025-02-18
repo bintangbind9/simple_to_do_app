@@ -1,7 +1,10 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show FlutterLocalNotificationsPlugin;
 import 'package:get_it/get_it.dart' show GetIt;
 
 import '../data/firebase/cloud_firestore/app_user_service.dart';
 import '../data/firebase/cloud_firestore/to_do_service.dart';
+import '../data/firebase/firebase_messaging_service.dart';
 import '../data/firebase/firebase_service.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../data/repositories/cloud_firestore/app_user_repository_impl.dart';
@@ -52,6 +55,8 @@ void _registerCommons() {
 
 void _registerServices() {
   GetIt.I.registerLazySingleton(() => FirebaseService());
+  GetIt.I.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
+  GetIt.I.registerLazySingleton(() => FirebaseMessagingService());
   GetIt.I.registerLazySingleton(() => AppUserService());
   GetIt.I.registerLazySingleton(() => ToDoService());
 }

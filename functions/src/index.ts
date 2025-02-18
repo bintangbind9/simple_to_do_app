@@ -9,13 +9,15 @@
 
 import {auth} from "firebase-functions/v1";
 import {onRequest} from "firebase-functions/v2/https";
+import * as admin from "firebase-admin";
 import {getApps, initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
-/*
 import {
   onDocumentCreated,
-  onDocumentUpdated,
+  /* onDocumentUpdated, */
 } from "firebase-functions/v2/firestore";
+
+/*
 import { getAuth } from "firebase-admin/auth";
 */
 
@@ -71,6 +73,50 @@ export const onUserCreated = auth.user().onCreate(async (user) => {
     console.error("Error creating user profile:", error);
   }
 });
+
+export const sendReminder = onDocumentCreated(
+  "todos/{todoId}",
+  async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) return;
+
+    const todoData = snapshot.data();
+
+    if (!todoData) {
+      console.log("No ToDo data available.");
+      return;
+    }
+
+    const reminderTime = todoData.reminderAt.toDate();
+
+    // Calculate delay from current time to reminder time
+    const delay = reminderTime.getTime() - new Date().getTime();
+    if (delay <= 0) {
+      console.log("Reminder time has already passed.");
+      return null;
+    }
+
+    // Use Firebase Cloud Messaging to send the reminder
+    setTimeout(() => {
+      const message = {
+        notification: {
+          title: "To Do Reminder",
+          body: todoData.title,
+        },
+        topic: "user_" + todoData.appUserUid, // Send to a user-specific topic
+      };
+
+      admin.messaging().send(message)
+        .then((response) => {
+          console.log("Successfully sent reminder:", response);
+        })
+        .catch((error) => {
+          console.log("Error sending reminder:", error);
+        });
+    }, delay);
+
+    return;
+  });
 
 /*
 // Handle document creation for all collections
